@@ -12,11 +12,12 @@ mod tests {
         list.insert(3);
         list.insert(4);
         list.insert(5);
-        list.print();
         assert_eq!(list.search(&3).unwrap(), true);
         assert_eq!(list.search(&6).unwrap(), false);
         assert_eq!(list.update(3, 6).unwrap(), true);
         assert_eq!(list.is_empty(),false);
+        assert_eq!(list.len(),5);
+        list.get(2).expect("Index out of bounds");
     }
 }
 
