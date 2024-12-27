@@ -51,4 +51,7 @@ where
 
     /// Returns the length of the list
     fn len(&self) -> usize;
+
+    /// Get the value of a node at a given index
+    fn get(&self, index: usize) -> Result<Option<&T>, Error<T>>;
 }

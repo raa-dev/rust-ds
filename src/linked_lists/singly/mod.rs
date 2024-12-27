@@ -140,4 +140,23 @@ where
         }
         len
     }
+
+    fn get(&self, index: usize) -> Result<Option<&T>, Error<T>> {
+        if self.is_empty() {
+            return Err(Error::EmptyList);
+        }
+
+        let mut current = &self.head;
+        let mut current_index = 0;
+
+        while let Some(node) = current {
+            if current_index == index {
+                return Ok(Some(&node.value));
+            }
+            current = &node.next;
+            current_index += 1;
+        }
+
+        Err(Error::IndexOutOfBounds { index, max_index: current_index - 1 })
+    }
 }
