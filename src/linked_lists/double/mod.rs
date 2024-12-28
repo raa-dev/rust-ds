@@ -1,47 +1,54 @@
-use std::fmt::Debug;
+use std::clone::Clone;
 use crate::linked_lists::traits::List;
 use crate::linked_lists::types::{Result,Error};
 
-#[derive(Debug)]
-struct Node<T> {
+/*
+/ A node in the double linked list, containing a custom-type value and two pointers to the next and the previous node.
+ */
+use std::fmt::Debug;
+#[derive(Debug, Clone)]
+struct Node<T> where T: Clone {
     value: T,
     next: Option<Box<Node<T>>>,
+    previous: Option<Box<Node<T>>>,
 }
 
-#[derive(Debug)]
-pub struct Singly<T> {
+/*
+/ A double linked list referencing the head node.
+ */
+pub struct Double<T: Clone> {
     head: Option<Box<Node<T>>>,
 }
 
-impl<T> List<T> for Singly<T>
-where
-    T: Debug + PartialEq + Clone,
-{
+impl<T: Debug + PartialEq + Clone> List<T> for Double<T> {
     fn new() -> Self {
-        Singly { head: None }
+        Double { head: None }
     }
+    /*
+    / Inserts a new node to the end of the double linked list.
+     */
+     fn insert(&mut self, value: T) {
+            let new_node = Box::new(Node {
+                value,
+                next: None,
+                previous: None,
+            });
 
-    fn insert(&mut self, value: T) {
-        let new_node = Box::new(Node {
-            value,
-            next: None,
-        });
-
-        match &mut self.head {
-            None => {
-                self.head = Some(new_node);
-            }
-            Some(current) => {
-                let mut current = current;
-                while let Some(ref mut next) = current.next {
-                    current = next;
+            match &mut self.head {
+                None => {
+                    self.head = Some(new_node);
                 }
-                current.next = Some(new_node);
+                Some(current) => {
+                    let mut current = current;
+                    while let Some(ref mut next) = current.next {
+                        current = next;
+                    }
+                    current.next = Some(new_node);
+                    current.next.as_mut().unwrap().previous = Some(current.clone());
+                }
             }
-        }
-    }
-
-    fn remove(&mut self, value: &T) -> Result<bool,Error<T>> {
+     }
+     fn remove(&mut self, value: &T) -> Result<bool,Error<T>> {
         if self.is_empty() {
             return Err(Error::EmptyList);
         }
@@ -50,7 +57,6 @@ where
             self.head = self.head.take().unwrap().next;
             return Ok(true);
         }
-
         let mut current = &mut self.head;
         while let Some(node) = current {
             if let Some(next) = &node.next {
@@ -62,10 +68,10 @@ where
             }
             current = &mut node.next;
         }
-        Err(Error::ValueNotFound { value: value.clone() })
-    }
 
-    fn search(&self, value: &T) -> Result<bool,Error<T>> {
+        Ok(false)
+     }
+     fn search(&self, value: &T) -> Result<bool,Error<T>> {
         let mut current = &self.head;
         while let Some(node) = current {
             if node.value == *value {
@@ -74,9 +80,8 @@ where
             current = &node.next;
         }
         Ok(false)
-    }
-
-    fn update(&mut self, old_value: T, new_value: T) -> Result<bool,Error<T>> {
+     }
+     fn update(&mut self, old_value: T, new_value: T) -> Result<bool,Error<T>> {
         let mut current = &mut self.head;
         while let Some(node) = current {
             if node.value == old_value {
@@ -85,8 +90,8 @@ where
             }
             current = &mut node.next;
         }
-        Err(Error::ValueNotFound { value: old_value })
-    }
+         Err(Error::ValueNotFound { value: old_value })
+     }
 
     fn from_vec(values: Vec<T>) -> Self {
         let mut list = Self::new();
@@ -97,37 +102,35 @@ where
     }
 
     fn pop(&mut self) -> Option<T> {
-        if self.is_empty() {
-            return None;
-        }
+         if self.is_empty() {
+             return None;
+         }
+         if self.head.as_ref().unwrap().next.is_none() {
+            return self.head.take().map(|node| node.value);
+         }
 
-        if self.head.as_ref().unwrap().next.is_none() {
-            return Some(self.head.take().unwrap().value);
-        }
-
-        let mut current = &mut self.head;
-        while let Some(node) = current {
-            if let Some(next) = &node.next {
-                if next.next.is_none() {
-                    let last_node = node.next.take().unwrap();
-                    return Some(last_node.value);
-                }
+         let mut current = &mut self.head;
+         while let Some(node) = current {
+             if let Some(next) = &node.next {
+                 if next.next.is_none() {
+                     let last_node = node.next.take().unwrap();
+                     node.next = None;
+                     node.previous.as_mut().unwrap().next = None;
+                     return Some(last_node.value);
+                 }
             }
             current = &mut node.next;
         }
         None
-    }
-
-    fn print(&self) {
+     }
+     fn print(&self) {
         let mut current = &self.head;
         while let Some(node) = current {
-            print!("{:?} -> ", node.value);
+            println!("{:?}", node.value);
             current = &node.next;
         }
-        println!("None");
-    }
-
-    fn is_empty(&self) -> bool {
+     }
+     fn is_empty(&self) -> bool {
         self.head.is_none()
     }
 
@@ -145,18 +148,15 @@ where
         if self.is_empty() {
             return Err(Error::EmptyList);
         }
-
         let mut current = &self.head;
-        let mut current_index = 0;
-
+        let mut i = 0;
         while let Some(node) = current {
-            if current_index == index {
+            if i == index {
                 return Ok(Some(&node.value));
             }
+            i += 1;
             current = &node.next;
-            current_index += 1;
         }
-
-        Err(Error::IndexOutOfBounds { index, max_index: current_index - 1 })
+        Err(Error::IndexOutOfBounds { index, max_index: i - 1 })
     }
 }
