@@ -1,38 +1,35 @@
+use super::SinglyNode;
 use std::fmt::Debug;
-use super::{SinglyNode};
-
+/// A node in the linear linked list, containing a custom-type value and a pointer to the next node.
 #[derive(Debug, Clone)]
-pub struct SNode<T>
-where T: Clone {
+pub struct SNode<T> {
     value: T,
     next: Option<Box<SNode<T>>>,
 }
 
-impl<
-    T: Debug
-    + PartialEq
-    + Clone
-> SinglyNode<T> for SNode<T> {
+impl<T> SinglyNode<T> for SNode<T>
+where
+    T: Debug + PartialEq,
+{
     fn new(value: T) -> Self {
-        SNode {
-            value,
-            next: None,
-        }
+        SNode { value, next: None }
     }
 
     fn get_value(&self) -> &T {
         &self.value
     }
 
-    fn get_next(&self) -> Option<&Self> {
-        Some(self.next.as_ref()?)
+    fn get_next(&self) -> &Option<Box<Self>> {
+        &self.next
     }
 
-    fn get_next_mut(&mut self) -> Option<&mut Self> {
-        Some(self.next.as_mut()?)
+    fn get_next_mut(&mut self) -> &mut Option<Box<Self>> {
+        &mut self.next
     }
 
-    fn set_value(&mut self, value: T) { self.value = value; }
+    fn set_value(&mut self, value: T) {
+        self.value = value;
+    }
 
     fn set_next(&mut self, next: Option<Box<Self>>) {
         self.next = next;
@@ -54,10 +51,19 @@ mod tests {
         assert_eq!(*node.get_value(), 2);
         let next_node = SNode::new(3);
         node.set_next(Some(Box::new(next_node)));
-        assert_eq!(*node.get_next().unwrap().get_value(), 3);
+        assert_eq!(*node.get_next().as_ref().unwrap().get_value(), 3);
         let next_node = Box::new(SNode::new(5));
-        node.get_next_mut().unwrap().set_next(Some(next_node));
-        let latest_node = node.get_next().unwrap().get_next().unwrap();
+        node.get_next_mut()
+            .as_mut()
+            .unwrap()
+            .set_next(Some(next_node));
+        let latest_node = node
+            .get_next()
+            .as_ref()
+            .unwrap()
+            .get_next()
+            .as_ref()
+            .unwrap();
         assert_eq!(*latest_node.get_value(), 5);
     }
 }
