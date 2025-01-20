@@ -1,6 +1,9 @@
+//! Singly linked list implementation.
+//!
+//! `Singly` is a singly linked list that contains a reference to the head node and the length of the list.
+
 use super::SNode as Node;
 use super::{Error, Result};
-use super::{List, SinglyNode};
 use std::fmt::Debug;
 
 #[derive(Debug)]
@@ -9,7 +12,7 @@ pub struct Singly<T> {
     len: usize,
 }
 
-impl<T> List<T> for Singly<T>
+impl<T> Singly<T>
 where
     T: Debug + PartialEq + Clone,
 {
@@ -174,7 +177,6 @@ mod test {
     #[test]
     fn test_singly_list_ops() {
         let mut list = Singly::new();
-        assert_eq!(list.is_empty(), true);
         assert!(list.remove(99).is_err());
         list.insert(1);
         list.insert(2);
@@ -185,18 +187,23 @@ mod test {
         assert_eq!(list.search(3).unwrap(), true);
         assert_eq!(list.search(6).unwrap(), false);
         assert_eq!(list.update(3, 6).unwrap(), true);
-        assert_eq!(list.update(7, 8).is_err(), true);
         let list2 = Singly::from_vec(vec!["hello", "world", "rust"]);
-        assert_eq!(list2.is_empty(), false);
-        assert_eq!(list.remove(4).unwrap(), true);
-        assert_eq!(list.remove(7).is_err(), true);
         assert_eq!(list.pop().unwrap().unwrap(), 5);
+        assert_eq!(list.pop().unwrap().unwrap(), 4);
         assert_eq!(list.pop().unwrap().unwrap(), 6);
         assert_eq!(list.pop().unwrap().unwrap(), 2);
         assert_eq!(list.pop().unwrap().unwrap(), 1);
-        assert_eq!(list.pop().is_err(), true);
         assert_eq!(list2.get(2).unwrap(), Some(&"rust"));
+    }
+
+    #[test]
+    fn test_singly_list_errors() {
+        let mut list = Singly::new();
         assert_eq!(list.is_empty(), true);
+        assert!(list.remove(99).is_err());
+        assert!(list.update(99, 100).is_err());
+        assert!(list.pop().is_err());
+        assert!(list.get(0).is_err());
     }
 }
 

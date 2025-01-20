@@ -1,37 +1,38 @@
-use super::SinglyNode;
+//! Node for singly linked list.
+//!
+//!  `SNode` is a node in the linear linked list, containing a custom-type value and a pointer to the next node.
 use std::fmt::Debug;
-/// A node in the linear linked list, containing a custom-type value and a pointer to the next node.
 #[derive(Debug, Clone)]
 pub struct SNode<T> {
     value: T,
     next: Option<Box<SNode<T>>>,
 }
 
-impl<T> SinglyNode<T> for SNode<T>
+impl<T> SNode<T>
 where
     T: Debug + PartialEq,
 {
-    fn new(value: T) -> Self {
+    pub fn new(value: T) -> Self {
         SNode { value, next: None }
     }
 
-    fn get_value(&self) -> &T {
+    pub fn get_value(&self) -> &T {
         &self.value
     }
 
-    fn get_next(&self) -> &Option<Box<Self>> {
+    pub fn get_next(&self) -> &Option<Box<Self>> {
         &self.next
     }
 
-    fn get_next_mut(&mut self) -> &mut Option<Box<Self>> {
+    pub fn get_next_mut(&mut self) -> &mut Option<Box<Self>> {
         &mut self.next
     }
 
-    fn set_value(&mut self, value: T) {
+    pub fn set_value(&mut self, value: T) {
         self.value = value;
     }
 
-    fn set_next(&mut self, next: Option<Box<Self>>) {
+    pub fn set_next(&mut self, next: Option<Box<Self>>) {
         self.next = next;
     }
 }

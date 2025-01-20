@@ -2,11 +2,9 @@
 mod errors;
 mod node;
 mod singly;
-mod traits;
 
-// pub(crate) use singly::Singly;
-// pub(crate) use double::Double;
+// pub use double::Double;
+pub use singly::Singly;
 
 pub(super) use errors::{Error, Result};
-pub(super) use node::SNode;
-pub(super) use traits::{List, SinglyNode};
+pub(super) use node::{ExtNode, SNode};
