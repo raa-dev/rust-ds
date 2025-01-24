@@ -2,6 +2,7 @@ use super::ExtNode as Node;
 use super::{Error, Result};
 use std::cell::RefCell;
 use std::clone::Clone;
+use std::f32::consts::E;
 use std::fmt::Debug;
 use std::rc::Rc;
 
@@ -77,16 +78,36 @@ where
 
     //     Ok(false)
     // }
-    // fn search(&self, value: T) -> Result<bool, Error<T>> {
-    //     let mut current = &self.head;
-    //     while let Some(mut node) = current {
-    //         if *node.get_mut().get_value() == value {
-    //             return Ok(true);
-    //         }
-    //         current = &node.get_mut().get_next();
-    //     }
-    //     Ok(false)
-    // }
+
+    fn search(&self, value: T) -> Result<bool> {
+        match self.head.as_ref() {
+            None => return Err(Error::EmptyList),
+            Some(current) => {
+                let mut current = current;
+                if current.borrow().get_next().is_none() {
+                    return Ok(*current.borrow().get_value() == value);
+                }
+                while current.borrow().get_next().is_some() {
+                    if *current.borrow().get_value() == value {
+                        return Ok(true);
+                    }
+                    current = unsafe {
+                        current
+                            .as_ptr()
+                            .as_ref()
+                            .unwrap()
+                            .get_next()
+                            .as_ref()
+                            .unwrap()
+                    };
+                }
+                if current.borrow().get_next().is_none() {
+                    return Ok(*current.borrow().get_value() == value);
+                }
+            }
+        }
+        Err(Error::ValueNotFound)
+    }
     // fn update(&mut self, old_value: T, new_value: T) -> Result<bool, Error<T>> {
     //     let mut current = &mut self.head;
     //     while let Some(mut node) = current {
@@ -131,18 +152,19 @@ where
         }
     }
 
-    // fn print(&self) {
-    //     match self.head.as_ref() {
-    //         None => println!("{:?}", Error::EmptyList),
-    //         Some(current) => {
-    //             while let Some(node) = current.as_ref().get_mut().get_next() {
-    //                 print!("{:?} -> ", node.as_ref().get_mut().get_value());
-    //                 current = &node.as_ref().get_mut().get_next().unwrap();
-    //             }
-    //             println!("None");
-    //         }
-    //     }
-    // }
+    fn print(&self) {
+        if self.is_empty() {
+            println!("{}", Error::EmptyList);
+        }
+
+        let mut index = 0;
+        while index < self.len {
+            let _ = self.get(index).map(|value| {
+                println!("{:?}", value.unwrap());
+                index += 1;
+            });
+        }
+    }
 
     fn is_empty(&self) -> bool {
         self.head.is_none()
@@ -186,11 +208,15 @@ mod test {
         let list2 = Double::from_vec(vec!["hello", "world", "rust"]);
         assert_eq!(list2.get(1).unwrap().unwrap(), "world");
         assert!(!list2.is_empty());
+        assert!(list2.search("rust").unwrap());
     }
 
     #[test]
     fn test_double_linked_list_errors() {
         let list: Double<i32> = Double::new();
         assert!(list.is_empty());
+        assert!(list.search(6).is_err());
     }
 }
+
+// endregion: --- Tests
