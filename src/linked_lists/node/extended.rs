@@ -16,7 +16,7 @@ impl<T> ExtNode<T>
 where
     T: Debug + PartialEq,
 {
-    fn new(value: T) -> Self {
+    pub fn new(value: T) -> Self {
         ExtNode {
             value,
             next: None,
@@ -24,35 +24,35 @@ where
         }
     }
 
-    fn get_value(&self) -> &T {
+    pub fn get_value(&self) -> &T {
         &self.value
     }
 
-    fn set_value(&mut self, value: T) {
+    pub fn set_value(&mut self, value: T) {
         self.value = value;
     }
 
-    fn get_next(&self) -> &Option<Rc<RefCell<Self>>> {
+    pub fn get_next(&self) -> &Option<Rc<RefCell<Self>>> {
         &self.next
     }
 
-    fn get_previous(&self) -> &Option<Weak<RefCell<Self>>> {
+    pub fn get_previous(&self) -> &Option<Weak<RefCell<Self>>> {
         &self.previous
     }
 
-    fn get_next_mut(&mut self) -> &mut Option<Rc<RefCell<Self>>> {
+    pub fn get_next_mut(&mut self) -> &mut Option<Rc<RefCell<Self>>> {
         &mut self.next
     }
 
-    fn get_previous_mut(&mut self) -> &mut Option<Weak<RefCell<Self>>> {
+    pub fn get_previous_mut(&mut self) -> &mut Option<Weak<RefCell<Self>>> {
         &mut self.previous
     }
 
-    fn set_next(&mut self, next: Option<Rc<RefCell<Self>>>) {
+    pub fn set_next(&mut self, next: Option<Rc<RefCell<Self>>>) {
         self.next = next;
     }
 
-    fn set_previous(&mut self, previous: Option<Weak<RefCell<Self>>>) {
+    pub fn set_previous(&mut self, previous: Option<Weak<RefCell<Self>>>) {
         self.previous = previous;
     }
 }

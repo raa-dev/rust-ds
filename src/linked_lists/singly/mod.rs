@@ -99,7 +99,6 @@ where
         let mut list = Self::new();
         for value in values {
             list.insert(value);
-            list.len += 1;
         }
         list
     }
@@ -199,7 +198,7 @@ mod test {
     #[test]
     fn test_singly_list_errors() {
         let mut list = Singly::new();
-        assert_eq!(list.is_empty(), true);
+        assert!(list.is_empty());
         assert!(list.remove(99).is_err());
         assert!(list.update(99, 100).is_err());
         assert!(list.pop().is_err());
