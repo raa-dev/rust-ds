@@ -3,7 +3,7 @@ A linked list is a linear data structure where each element is a separate object
 
 ## Operations
 The following operations are defined for a linked list:
-- **Insertion**: Adds an element at the end of the list.
+- **Append**: Adds an element at the end of the list.
 - **Pop**: Removes the last element from the list.
 - **Remove**: Removes an element from the list.
 - **Search**: Searches for an element in the list.

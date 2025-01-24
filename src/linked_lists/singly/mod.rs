@@ -20,7 +20,7 @@ where
         Singly { head: None, len: 0 }
     }
 
-    fn insert(&mut self, value: T) {
+    fn append(&mut self, value: T) {
         let new_node = Box::new(Node::new(value));
 
         match self.head.as_mut() {
@@ -106,7 +106,7 @@ where
     fn from_vec(values: Vec<T>) -> Self {
         let mut list = Self::new();
         for value in values {
-            list.insert(value);
+            list.append(value);
         }
         list
     }
@@ -185,11 +185,11 @@ mod test {
     fn test_singly_list_ops() {
         let mut list = Singly::new();
         assert!(list.remove(99).is_err());
-        list.insert(1);
-        list.insert(2);
-        list.insert(3);
-        list.insert(4);
-        list.insert(5);
+        list.append(1);
+        list.append(2);
+        list.append(3);
+        list.append(4);
+        list.append(5);
         assert_eq!(list.is_empty(), false);
         assert_eq!(list.search(3).unwrap(), true);
         assert_eq!(list.update(3, 6).unwrap(), true);

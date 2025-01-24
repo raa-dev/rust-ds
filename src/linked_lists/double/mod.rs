@@ -24,7 +24,7 @@ where
             len: 0,
         }
     }
-    fn insert(&mut self, value: T) {
+    fn append(&mut self, value: T) {
         let new_node = Rc::new(RefCell::new(Node::new(value)));
 
         match self.head.as_mut() {
@@ -144,7 +144,7 @@ where
     fn from_vec(values: Vec<T>) -> Self {
         let mut list = Self::new();
         for value in values {
-            list.insert(value);
+            list.append(value);
         }
         list
     }
@@ -220,8 +220,8 @@ mod test {
     #[test]
     fn test_double_linked_list_ops() {
         let mut list = Double::new();
-        list.insert(1);
-        list.insert(2);
+        list.append(1);
+        list.append(2);
         assert!(!list.is_empty());
         let value = list.pop().unwrap().unwrap();
         assert_eq!(value, 2);
