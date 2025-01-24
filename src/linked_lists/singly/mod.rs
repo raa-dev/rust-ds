@@ -69,14 +69,22 @@ where
     }
 
     fn search(&self, value: T) -> Result<bool> {
-        let mut current = &self.head;
-        while let Some(node) = current {
-            if *node.get_value() == value {
-                return Ok(true);
+        match self.head.as_ref() {
+            None => return Err(Error::EmptyList),
+            Some(current) => {
+                let mut current = current;
+                if current.get_next().is_none() {
+                    return Ok(*current.get_value() == value);
+                }
+                while current.get_next().is_some() {
+                    if *current.get_value() == value {
+                        return Ok(true);
+                    }
+                    current = current.get_next().as_ref().unwrap();
+                }
             }
-            current = &node.get_next();
         }
-        Ok(false)
+        Err(Error::ValueNotFound)
     }
 
     fn update(&mut self, old_value: T, new_value: T) -> Result<bool> {
@@ -184,7 +192,6 @@ mod test {
         list.insert(5);
         assert_eq!(list.is_empty(), false);
         assert_eq!(list.search(3).unwrap(), true);
-        assert_eq!(list.search(6).unwrap(), false);
         assert_eq!(list.update(3, 6).unwrap(), true);
         let list2 = Singly::from_vec(vec!["hello", "world", "rust"]);
         assert_eq!(list.pop().unwrap().unwrap(), 5);
@@ -203,6 +210,7 @@ mod test {
         assert!(list.update(99, 100).is_err());
         assert!(list.pop().is_err());
         assert!(list.get(0).is_err());
+        assert!(list.search(6).is_err());
     }
 }
 
