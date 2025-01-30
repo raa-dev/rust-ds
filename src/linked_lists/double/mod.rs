@@ -5,7 +5,7 @@ use std::clone::Clone;
 use std::fmt::Debug;
 use std::rc::Rc;
 
-/// A double linked list referencing the head node.
+/// `Double` is a double linked list referencing the head, the tail node node and the length of the list.
 pub struct Double<T: Clone> {
     head: Option<Rc<RefCell<Node<T>>>>,
     tail: Option<Rc<RefCell<Node<T>>>>,
@@ -16,14 +16,16 @@ impl<T> Double<T>
 where
     T: Debug + PartialEq + Clone,
 {
-    fn new() -> Self {
+    /// Create a new instance of the `Double` linked list.
+    pub fn new() -> Self {
         Double {
             head: None,
             tail: None,
             len: 0,
         }
     }
-    fn append(&mut self, value: T) {
+    /// Append a new value to the end of the list.
+    pub fn append(&mut self, value: T) {
         let new_node = Rc::new(RefCell::new(Node::new(value)));
 
         match self.head.as_mut() {
@@ -53,8 +55,10 @@ where
         }
         self.len += 1;
     }
-
-    fn remove(&mut self, value: T) -> Result<bool> {
+    /// Remove a node from the list.
+    /// Returns true if the value is found and removed.
+    /// If the value is not found, it returns an error.
+    pub fn remove(&mut self, value: T) -> Result<bool> {
         if self.is_empty() {
             return Err(Error::EmptyList);
         }
@@ -121,8 +125,9 @@ where
         }
         Err(Error::ValueNotFound)
     }
-
-    fn search(&self, value: T) -> Result<bool> {
+    /// Search for a value in the list, returns true if the value is found.
+    /// If the value is not found, it returns an error.
+    pub fn search(&self, value: T) -> Result<bool> {
         match self.head.as_ref() {
             None => return Err(Error::EmptyList),
             Some(current) => {
@@ -151,8 +156,9 @@ where
         }
         Err(Error::ValueNotFound)
     }
-
-    fn update(&mut self, old_value: T, new_value: T) -> Result<bool> {
+    /// Update a value in the list, returns true if the value is found and updated.
+    /// If the value is not found, it returns an error.
+    pub fn update(&mut self, old_value: T, new_value: T) -> Result<bool> {
         match self.head.as_ref() {
             None => return Err(Error::EmptyList),
             Some(current) => {
@@ -183,16 +189,18 @@ where
         }
         Err(Error::ValueNotFound)
     }
-
-    fn from_vec(values: Vec<T>) -> Self {
+    /// Create a new instance of the double linked list from a vector.
+    pub fn from_vec(values: Vec<T>) -> Self {
         let mut list = Self::new();
         for value in values {
             list.append(value);
         }
         list
     }
-
-    fn pop(&mut self) -> Result<Option<T>> {
+    /// Remove the last node from the list.
+    /// Returns the value of the removed node.
+    /// If the list is empty, it returns an error.
+    pub fn pop(&mut self) -> Result<Option<T>> {
         if self.is_empty() {
             return Err(Error::EmptyList);
         }
@@ -229,12 +237,14 @@ where
             });
         }
     }
-
-    fn is_empty(&self) -> bool {
+    /// Check if the list is empty.
+    pub fn is_empty(&self) -> bool {
         self.head.is_none()
     }
-
-    fn get(&self, index: usize) -> Result<Option<T>> {
+    /// Get an element from the list by index.
+    /// Returns an error if the list is empty or the index is out of bounds.
+    /// If the index is valid, it returns the value of the node.
+    pub fn get(&self, index: usize) -> Result<Option<T>> {
         if self.is_empty() {
             return Err(Error::EmptyList);
         }
