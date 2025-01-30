@@ -5,5 +5,3 @@ edition = "2021"
 authors = ["raa <raa@riseup.net>"]
 description = "Custom data structures crate for Rust"
 license = "MIT"
-
-[dependencies]
