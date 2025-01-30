@@ -2,7 +2,6 @@ use super::ExtNode as Node;
 use super::{Error, Result};
 use std::cell::RefCell;
 use std::clone::Clone;
-use std::f32::consts::E;
 use std::fmt::Debug;
 use std::rc::Rc;
 
@@ -55,29 +54,73 @@ where
         self.len += 1;
     }
 
-    // fn remove(&mut self, value: T) -> Result<bool, Error<T>> {
-    //     if self.is_empty() {
-    //         return Err(Error::EmptyList);
-    //     }
+    fn remove(&mut self, value: T) -> Result<bool> {
+        if self.is_empty() {
+            return Err(Error::EmptyList);
+        }
 
-    //     if *self.head.as_ref().unwrap().get_mut().get_value() == value {
-    //         self.head = self.head.take().unwrap().get_mut().get_next();
-    //         return Ok(true);
-    //     }
-    //     let mut current = &mut self.head;
-    //     while let Some(node) = current {
-    //         if let Some(mut next) = &node.get_mut().get_next() {
-    //             if *next.get_mut().get_value() == value {
-    //                 let next_node = node.get_next().take().unwrap();
-    //                 node.get_mut().set_next(next_node.get_next());
-    //                 return Ok(true);
-    //             }
-    //         }
-    //         current = &mut node.get_mut().get_next();
-    //     }
+        match self.head.as_mut() {
+            None => return Err(Error::EmptyList),
+            Some(current) => {
+                let mut current = current.clone();
+                if *current.borrow().get_value() == value {
+                    let next = current.borrow_mut().get_next_mut().take();
+                    self.head = std::mem::replace(&mut self.head, next);
+                    if let Some(next) = self.head.as_mut() {
+                        next.borrow_mut().set_previous(None);
+                    }
+                    self.len -= 1;
+                    return Ok(true);
+                }
 
-    //     Ok(false)
-    // }
+                while current.borrow().get_next().is_some() {
+                    if let Some(next) = current.borrow_mut().get_next_mut().take() {
+                        if *next.borrow().get_value() == value {
+                            if let Some(next_next) = next.borrow().get_next() {
+                                next_next
+                                    .borrow_mut()
+                                    .set_previous(Some(Rc::downgrade(&current)));
+                                unsafe {
+                                    current
+                                        .as_ptr()
+                                        .as_mut()
+                                        .take()
+                                        .unwrap()
+                                        .get_next_mut()
+                                        .replace(next_next.clone());
+                                }
+                            }
+                            self.len -= 1;
+                            return Ok(true);
+                        }
+                    }
+                    current = unsafe {
+                        current
+                            .as_ptr()
+                            .as_ref()
+                            .unwrap()
+                            .get_next()
+                            .clone()
+                            .unwrap()
+                    };
+                }
+                if current.borrow().get_next().is_none() && *current.borrow().get_value() == value {
+                    let previous = current
+                        .borrow()
+                        .get_previous()
+                        .clone()
+                        .unwrap()
+                        .upgrade()
+                        .unwrap();
+                    previous.borrow_mut().set_next(None);
+                    self.tail = Some(previous);
+                    self.len -= 1;
+                    return Ok(true);
+                }
+            }
+        }
+        Err(Error::ValueNotFound)
+    }
 
     fn search(&self, value: T) -> Result<bool> {
         match self.head.as_ref() {
@@ -232,13 +275,18 @@ mod test {
         assert!(list2.search("rust").unwrap());
         assert!(list2.update("world", "earth").unwrap());
         assert_eq!(list2.get(1).unwrap().unwrap(), "earth");
+        assert!(list2.remove("earth").unwrap());
+        list2.print();
     }
 
     #[test]
     fn test_double_linked_list_errors() {
-        let list: Double<i32> = Double::new();
+        let mut list: Double<i32> = Double::new();
         assert!(list.is_empty());
         assert!(list.search(6).is_err());
+        assert!(list.update(6, 7).is_err());
+        assert!(list.pop().is_err());
+        assert!(list.remove(6).is_err());
     }
 }
 
