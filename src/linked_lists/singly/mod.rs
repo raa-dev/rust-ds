@@ -9,6 +9,15 @@ pub struct Singly<T> {
     len: usize,
 }
 
+impl<T> Default for Singly<T>
+where
+    T: Debug + PartialEq + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> Singly<T>
 where
     T: Debug + PartialEq + Clone,
@@ -146,11 +155,11 @@ where
         Ok(None)
     }
 
-    fn print(&self) {
+    pub fn print(&self) {
         let mut current = &self.head;
         while let Some(node) = current {
             print!("{:?} -> ", node.get_value());
-            current = &node.get_next();
+            current = node.get_next();
         }
         println!("None");
     }
@@ -206,6 +215,7 @@ mod test {
         assert_eq!(list.pop().unwrap().unwrap(), 2);
         assert_eq!(list.pop().unwrap().unwrap(), 1);
         assert_eq!(list2.get(2).unwrap(), Some(&"rust"));
+        list2.print();
     }
 
     #[test]
