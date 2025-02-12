@@ -108,7 +108,7 @@ mod tests {
                     .as_ptr()
                     .as_mut()
                     .unwrap()
-                    .get_previous()
+                    .get_previous_mut()
                     .as_ref()
                     .unwrap()
                     .upgrade()

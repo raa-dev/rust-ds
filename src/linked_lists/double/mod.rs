@@ -13,6 +13,15 @@ pub struct Double<T> {
     len: usize,
 }
 
+impl<T> Default for Double<T>
+where
+    T: Debug + PartialEq + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> Double<T>
 where
     T: Debug + PartialEq + Clone,
@@ -89,7 +98,6 @@ where
                                     current
                                         .as_ptr()
                                         .as_mut()
-                                        .take()
                                         .unwrap()
                                         .get_next_mut()
                                         .replace(next_next.clone());
@@ -211,8 +219,8 @@ where
             Some(tail) => {
                 let tail = tail.clone();
                 let previous = tail
-                    .borrow()
-                    .get_previous()
+                    .borrow_mut()
+                    .get_previous_mut()
                     .clone()
                     .unwrap()
                     .upgrade()
@@ -225,7 +233,7 @@ where
         }
     }
 
-    fn print(&self) {
+    pub fn print(&self) {
         if self.is_empty() {
             println!("{}", Error::EmptyList);
         }
@@ -253,7 +261,7 @@ where
         let mut current_index = 0;
 
         while current_index <= index {
-            let current_ref = current.as_ref().clone().unwrap();
+            let current_ref = current.as_ref().unwrap();
             if current_index == index {
                 return Ok(Some(current_ref.borrow().get_value().clone()));
             }
