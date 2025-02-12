@@ -6,7 +6,8 @@ use std::fmt::Debug;
 use std::rc::Rc;
 
 /// `Double` is a double linked list referencing the head, the tail node node and the length of the list.
-pub struct Double<T: Clone> {
+#[derive(Debug)]
+pub struct Double<T> {
     head: Option<Rc<RefCell<Node<T>>>>,
     tail: Option<Rc<RefCell<Node<T>>>>,
     len: usize,
