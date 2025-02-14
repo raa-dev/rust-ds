@@ -7,6 +7,7 @@ use std::hash::{Hash, Hasher};
 
 type KeyPointer<K, V> = Option<(K, V)>;
 
+/// `Table` is a simple hash table implementation.
 #[derive(Debug)]
 pub struct Table<K, V>
 where
@@ -22,13 +23,14 @@ where
     K: Hash + Eq + Debug + Clone,
     V: Debug + Clone,
 {
+    /// Create a new `Table` with the given capacity.
     pub fn new(capacity: usize) -> Self {
         Self {
             elements: vec![None; capacity],
             capacity,
         }
     }
-
+    /// Hash the key and return the index.
     fn hash<Q>(&self, key: &Q) -> usize
     where
         K: std::borrow::Borrow<Q>,
@@ -38,12 +40,12 @@ where
         key.hash(&mut hasher);
         (hasher.finish() as usize) % self.capacity
     }
-
+    /// Insert a new key-value pair into the table.
     pub fn insert(&mut self, key: K, value: V) {
         let index = self.hash(&key);
         self.elements[index] = Some((key, value));
     }
-
+    /// Get the value for the given key.
     pub fn get(&self, key: &K) -> Result<&V> {
         let index = self.hash(key);
         self.elements[index]
@@ -51,7 +53,7 @@ where
             .map(|(_, v)| v)
             .ok_or(Error::KeyNotFound)
     }
-
+    /// Remove the key-value pair from the table.
     pub fn remove(&mut self, key: &K) -> Result<V> {
         if self.capacity == 0 {
             return Err(Error::EmptyTable);
@@ -63,7 +65,7 @@ where
             Err(Error::KeyNotFound)
         }
     }
-
+    /// Update the value for the given key.
     pub fn update(&mut self, key: &K) -> Result<&mut V> {
         if self.capacity == 0 {
             return Err(Error::EmptyTable);
@@ -74,7 +76,7 @@ where
             .map(|(_, v)| v)
             .ok_or(Error::KeyNotFound)
     }
-
+    /// Resize the table to the new capacity.
     pub fn resize(&mut self, new_capacity: usize) -> Result<()> {
         if new_capacity == 0 {
             return Err(Error::InvalidCapacity);
@@ -89,7 +91,7 @@ where
         Ok(())
     }
 }
-
+/// Default implementation for `Table`.
 impl<K, V> Default for Table<K, V>
 where
     K: Hash + Eq + Debug + Clone,

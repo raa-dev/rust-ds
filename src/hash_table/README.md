@@ -12,3 +12,31 @@ lookup operations.
 - **Get**: Retrieve the value associated with a given key.
 - **Update**: Modify the value associated with a given key.
 - **Resize**: Adjust the size of the hash table to maintain efficient operations.
+
+## Usage
+
+```rust
+use rust_ds::hash_table::Table;
+
+fn main() {
+    let mut table = Table::new(4); // You can use default instead to use a 64 length capacity
+
+    // Insert key-value pairs
+    table.insert("key1", "value1");
+    table.insert("key2", "value2");
+
+    // Retrieve a value
+    if let Some(value) = table.get("key1") {
+        println!("The value for 'key1' is {}", value);
+    }
+
+    // Update a value
+    table.update("key1", "new_value1");
+
+    // Remove a key-value pair
+    table.remove("key2");
+
+    // Resize the hash table
+    table.resize(32);
+}
+```
