@@ -44,32 +44,49 @@ where
         self.elements[index] = Some((key, value));
     }
 
-    pub fn get(&self, key: &K) -> Option<&V> {
+    pub fn get(&self, key: &K) -> Result<&V> {
         let index = self.hash(key);
-        self.elements[index].as_ref().map(|(_, v)| v)
+        self.elements[index]
+            .as_ref()
+            .map(|(_, v)| v)
+            .ok_or(Error::KeyNotFound)
     }
 
-    pub fn remove(&mut self, key: &K) -> Option<V> {
+    pub fn remove(&mut self, key: &K) -> Result<V> {
+        if self.capacity == 0 {
+            return Err(Error::EmptyTable);
+        }
         let index = self.hash(key);
         if let Some((_, value)) = self.elements[index].take() {
-            Some(value)
+            Ok(value)
         } else {
-            None
+            Err(Error::KeyNotFound)
         }
     }
 
-    pub fn update(&mut self, key: &K) -> Option<&mut V> {
+    pub fn update(&mut self, key: &K) -> Result<&mut V> {
+        if self.capacity == 0 {
+            return Err(Error::EmptyTable);
+        }
         let index = self.hash(key);
-        self.elements[index].as_mut().map(|(_, v)| v)
+        self.elements[index]
+            .as_mut()
+            .map(|(_, v)| v)
+            .ok_or(Error::KeyNotFound)
     }
 
-    pub fn resize(&mut self, new_capacity: usize) {
+    pub fn resize(&mut self, new_capacity: usize) -> Result<()> {
+        if new_capacity == 0 {
+            return Err(Error::InvalidCapacity);
+        }
+
         let mut new_table = Table::new(new_capacity);
         for element in self.elements.iter().filter_map(|e| e.as_ref()) {
             new_table.insert(element.0.clone(), element.1.clone());
         }
         self.elements = new_table.elements;
         self.capacity = new_capacity;
+        Ok(())
     }
 }
 
@@ -92,14 +109,23 @@ mod tests {
     fn test_hash_table_ops() {
         let mut table = Table::new(16);
         table.insert("key1", "value1");
-        assert_eq!(table.get(&"key1"), Some(&"value1"));
-        table.remove(&"key1");
-        assert_eq!(table.get(&"key1"), None);
+        assert_eq!(table.get(&"key1").unwrap(), &"value1");
+        table.remove(&"key1").unwrap();
+        assert!(table.get(&"key1").is_err());
         table.insert("key2", "value2");
-        if let Some(v) = table.update(&"key2") {
+        if let Ok(v) = table.update(&"key2") {
             *v = "value3";
         }
-        assert_eq!(table.get(&"key2"), Some(&"value3"));
+        assert_eq!(table.get(&"key2").unwrap(), &"value3");
+    }
+
+    #[test]
+    fn test_hash_table_errors() {
+        let mut table: Table<&str, &str> = Table::new(16);
+        assert!(table.get(&"key1").is_err());
+        assert!(table.remove(&"key1").is_err());
+        assert!(table.update(&"key1").is_err());
+        assert!(table.resize(0).is_err());
     }
 }
 // endregion: --- Tests
