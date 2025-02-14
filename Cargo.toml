@@ -1,8 +1,9 @@
 [package]
 name = "rust-ds"
-version = "0.1.1"
+version = "0.2.1"
 edition = "2021"
 authors = ["raa <raa@riseup.net>"]
 description = "Custom data structures crate for Rust"
 license = "MIT"
 repository = "https://github.com/raa-dev/rust-ds"
+categories = ["data-structures", "algorithms"]
