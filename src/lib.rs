@@ -2,7 +2,8 @@
 //!
 //! `rust_ds` is a collection of data structures utilities to use in Rust.
 
-use hash_table::HashTable;
+#[warn(unused_imports)]
+use hash_table::Table;
 use linked_lists::Double;
 use linked_lists::Singly;
 
